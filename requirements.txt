@@ -1,0 +1,12 @@
+# Telegram Bot Framework
+python-telegram-bot==20.7
+
+# Environment variables
+python-dotenv==1.0.1
+
+# Database ORM (for scalable upgrade from SQLite → PostgreSQL)
+sqlalchemy==2.0.36
+
+# FastAPI backend (optional but recommended for scaling / mini-app later)
+fastapi==0.115.0
+uvicorn==0.30.6

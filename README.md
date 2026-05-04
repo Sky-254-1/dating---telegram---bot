@@ -1,4 +1,4 @@
-# dating---telegram---bot
+# telegram---dating---bot
 💘 Telegram Dating Bot
 
 A scalable, production-ready Telegram dating bot that enables users to create profiles, discover matches, and connect through a mutual like system.

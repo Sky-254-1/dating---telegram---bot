@@ -29,7 +29,7 @@ if not TOKEN:
 conn = sqlite3.connect("database.db", check_same_thread=False)
 cursor = conn.cursor()
 
-# USERS
+# CREATE TABLES
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY,
@@ -39,7 +39,6 @@ CREATE TABLE IF NOT EXISTS users (
 )
 """)
 
-# LIKES
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS likes (
     liker INTEGER,
@@ -47,7 +46,6 @@ CREATE TABLE IF NOT EXISTS likes (
 )
 """)
 
-# SEEN USERS
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS seen (
     viewer INTEGER,
@@ -55,7 +53,6 @@ CREATE TABLE IF NOT EXISTS seen (
 )
 """)
 
-# MATCHES
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS matches (
     user1 INTEGER,
@@ -63,7 +60,6 @@ CREATE TABLE IF NOT EXISTS matches (
 )
 """)
 
-# PHOTOS
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS photos (
     user_id INTEGER,
@@ -71,10 +67,9 @@ CREATE TABLE IF NOT EXISTS photos (
 )
 """)
 
-# FILTERS
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS filters (
-    user_id INTEGER,
+    user_id INTEGER PRIMARY KEY,
     min_age INTEGER,
     max_age INTEGER
 )
@@ -266,6 +261,17 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except:
             pass
 
+# --- SMART TEXT HANDLER (FIXED) ---
+async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text
+
+    if "," in text:
+        await save_profile(update, context)
+    elif "-" in text and text.replace("-", "").isdigit():
+        await save_filter(update, context)
+    else:
+        await chat(update, context)
+
 # --- MAIN ---
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
@@ -276,10 +282,8 @@ def main():
     app.add_handler(CommandHandler("filter", set_filter))
 
     app.add_handler(MessageHandler(filters.PHOTO, photo))
-    app.add_handler(MessageHandler(filters.Regex(r"\d+-\d+"), save_filter))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, save_profile))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     app.add_handler(CallbackQueryHandler(button))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
 
     print("🔥 LoveMatch Pro running...")
     app.run_polling()
